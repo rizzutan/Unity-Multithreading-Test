@@ -29,7 +29,7 @@ public class playerController : MonoBehaviour
     void FixedUpdate()
     {
         // Check if the player is on the ground
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundDist, groundMask);
+        isGrounded = Physics2D.OverlapBox(groundCheck.position, new Vector2(1, groundDist), groundMask);
         // Create force to allow for player movement
         forceToAdd.x = Input.GetAxis("Horizontal") * speed * Time.fixedDeltaTime;
 
