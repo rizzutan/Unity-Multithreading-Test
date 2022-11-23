@@ -7,7 +7,7 @@ public class playerController : MonoBehaviour
     // Local variables
     Rigidbody2D rb;
     bool isGrounded, isCollidingRight, isCollidingLeft = false;
-    float[] forceToAdd = new float[2] { 0.0f, 0.0f};
+    float[] forceToAdd = new float[2] {0.0f, 0.0f};
 
     // Local variables that are editable in inspect menu
     [SerializeField] float speed = 16.0f;
@@ -45,7 +45,6 @@ public class playerController : MonoBehaviour
 
         if (!isGrounded)
         {
-            print(forceToAdd[1]);
             forceToAdd[1] = forceToAdd[1] + (-grav * Time.fixedDeltaTime);
             if (forceToAdd[1] < -grav)
             {
