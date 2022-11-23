@@ -7,7 +7,7 @@ public class playerController : MonoBehaviour
     // Local variables
     Rigidbody2D rb;
     bool isGrounded, isCollidingRight, isCollidingLeft = false;
-    Vector2 forceToAdd = new Vector2(0, 0);
+    float[] forceToAdd = new float[2] { 0.0f, 0.0f};
 
     // Local variables that are editable in inspect menu
     [SerializeField] float speed = 16.0f;
@@ -36,40 +36,40 @@ public class playerController : MonoBehaviour
         isCollidingRight = Physics2D.OverlapBox(rightCheck.position, new Vector2(dist, 0.9f), groundMask);
         isCollidingLeft = Physics2D.OverlapBox(leftCheck.position, new Vector2(dist, 0.9f), groundMask);
         // Create force to allow for player movement
-        forceToAdd.x = Input.GetAxis("Horizontal") * speed * Time.fixedDeltaTime;
+        forceToAdd[0] = Input.GetAxis("Horizontal") * speed * Time.fixedDeltaTime;
 
-        if ((isCollidingRight && forceToAdd.x > 0) || (isCollidingLeft && forceToAdd.x < 0))
+        if ((isCollidingRight && forceToAdd[0] > 0) || (isCollidingLeft && forceToAdd[0] < 0))
         {
-            forceToAdd.x = 0;
+            forceToAdd[0] = 0;
         }
 
         if (!isGrounded)
         {
-            print(forceToAdd.y);
-            forceToAdd.y = forceToAdd.y + (-grav * Time.fixedDeltaTime);
-            if (forceToAdd.y < -grav)
+            print(forceToAdd[1]);
+            forceToAdd[1] = forceToAdd[1] + (-grav * Time.fixedDeltaTime);
+            if (forceToAdd[1] < -grav)
             {
-                forceToAdd.y = -grav;
+                forceToAdd[1] = -grav;
             }
 
         }
         else
         {
-            forceToAdd.y = 0.0f;
+            forceToAdd[1] = 0.0f;
         }
 
         // If player can jump then add force to forceToAdd
         if (isGrounded && Input.GetAxis("Jump") > 0)
         {
-            forceToAdd.y = jump;
+            forceToAdd[1] = jump;
         }
         // Stop player if there is no input
         if (Input.GetAxis("Horizontal") == 0)
         {
-            forceToAdd.x = 0;
+            forceToAdd[0] = 0;
         }
 
         // Apply forces to player
-        transform.position = new Vector3(transform.position.x + forceToAdd.x, transform.position.y + forceToAdd.y, 0);
+        transform.position = new Vector3(transform.position.x + forceToAdd[0], transform.position.y + forceToAdd[1], 0);
     }
 }
