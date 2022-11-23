@@ -6,7 +6,7 @@ public class playerController : MonoBehaviour
 {
     // Local variables
     Rigidbody2D rb;
-    bool isGrounded = false;
+    bool isGrounded, isCollidingRight, isCollidingLeft = false;
     Vector2 forceToAdd = new Vector2(0, 0);
 
     // Local variables that are editable in inspect menu
@@ -15,7 +15,9 @@ public class playerController : MonoBehaviour
     [SerializeField] float grav = 1.0f;
 
     [SerializeField] Transform groundCheck;
-    [SerializeField] float groundDist = 0.11f;
+    [SerializeField] Transform rightCheck;
+    [SerializeField] Transform leftCheck;
+    [SerializeField] float dist = 0.055f;
     [SerializeField] LayerMask groundMask;
 
 
@@ -29,9 +31,17 @@ public class playerController : MonoBehaviour
     void FixedUpdate()
     {
         // Check if the player is on the ground
-        isGrounded = Physics2D.OverlapBox(groundCheck.position, new Vector2(1, groundDist), groundMask);
+        isGrounded = Physics2D.OverlapBox(groundCheck.position, new Vector2(1, dist), groundMask);
+        //Check if the player is colliding with wall on either side
+        isCollidingRight = Physics2D.OverlapBox(rightCheck.position, new Vector2(dist, 0.9f), groundMask);
+        isCollidingLeft = Physics2D.OverlapBox(leftCheck.position, new Vector2(dist, 0.9f), groundMask);
         // Create force to allow for player movement
         forceToAdd.x = Input.GetAxis("Horizontal") * speed * Time.fixedDeltaTime;
+
+        if ((isCollidingRight && forceToAdd.x > 0) || (isCollidingLeft && forceToAdd.x < 0))
+        {
+            forceToAdd.x = 0;
+        }
 
         if (!isGrounded)
         {
