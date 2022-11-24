@@ -9,7 +9,6 @@ public class playerController : MonoBehaviour
     Rigidbody2D rb;
     bool isGrounded, isCollidingRight, isCollidingLeft = false;
     float[] forceToAdd = new float[2] {0.0f, 0.0f};
-    float[] forceToAddMain = new float[2] { 0.0f, 0.0f };
     float horizontal = 0.0f;
     float vertical = 0.0f;
     bool workAround = true;
@@ -48,14 +47,8 @@ public class playerController : MonoBehaviour
 
     void Update()
     {
-        // Grab local copy of forceToAdd
-        lock (forceToAdd)
-        {
-            forceToAddMain = forceToAdd;
-        }
-
         // Apply forces to player
-        transform.position = new Vector3(transform.position.x + forceToAddMain[0], transform.position.y + forceToAddMain[1], 0);
+        transform.position = new Vector3(transform.position.x + forceToAdd[0], transform.position.y + forceToAdd[1], 0);
     }
 
     void physics()
@@ -63,7 +56,7 @@ public class playerController : MonoBehaviour
         while (workAround)
         {
             // Create force to allow for player movement
-            forceToAdd[0] = horizontal * speed * (1/1000);
+            forceToAdd[0] = horizontal * speed * 0.0005f;
 
             if ((isCollidingRight && forceToAdd[0] > 0) || (isCollidingLeft && forceToAdd[0] < 0))
             {
@@ -72,7 +65,7 @@ public class playerController : MonoBehaviour
 
             if (!isGrounded)
             {
-                forceToAdd[1] = forceToAdd[1] + (-grav * (1 / 1000));
+                forceToAdd[1] = forceToAdd[1] + (-grav * 0.0005f);
                 if (forceToAdd[1] < -grav)
                 {
                     forceToAdd[1] = -grav;
