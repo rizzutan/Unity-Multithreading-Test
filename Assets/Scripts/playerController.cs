@@ -8,15 +8,16 @@ public class playerController : MonoBehaviour
     // Local variables
     Rigidbody2D rb;
     bool isGrounded, isCollidingRight, isCollidingLeft = false;
-    float[] forceToAdd = new float[2] {0.0f, 0.0f};
+    float[] forceToAdd, forceToAddThread = new float[2] {0.0f, 0.0f};
     float horizontal = 0.0f;
     float vertical = 0.0f;
     bool workAround = true;
+    float delta, threadDelta = 0.0f;
 
     // Local variables that are editable in inspect menu
     [SerializeField] float speed = 16.0f;
-    [SerializeField] float jump = 0.25f;
-    [SerializeField] float grav = 1.0f;
+    [SerializeField] float jump = 0.0125f;
+    [SerializeField] float grav = 0.05f;
 
     [SerializeField] Transform groundCheck;
     [SerializeField] Transform rightCheck;
@@ -48,6 +49,11 @@ public class playerController : MonoBehaviour
     void Update()
     {
         // Apply forces to player
+        delta = Time.deltaTime;
+        lock (forceToAddThread)
+        {
+            forceToAdd = forceToAddThread;
+        }
         transform.position = new Vector3(transform.position.x + forceToAdd[0], transform.position.y + forceToAdd[1], 0);
     }
 
@@ -55,37 +61,38 @@ public class playerController : MonoBehaviour
     {
         while (workAround)
         {
+            threadDelta = delta;
             // Create force to allow for player movement
-            forceToAdd[0] = horizontal * speed * 0.0005f;
+            forceToAddThread[0] = horizontal * speed * threadDelta;
 
-            if ((isCollidingRight && forceToAdd[0] > 0) || (isCollidingLeft && forceToAdd[0] < 0))
+            if ((isCollidingRight && forceToAddThread[0] > 0) || (isCollidingLeft && forceToAddThread[0] < 0))
             {
-                forceToAdd[0] = 0;
+                forceToAddThread[0] = 0;
             }
 
             if (!isGrounded)
             {
-                forceToAdd[1] = forceToAdd[1] + (-grav * 0.0005f);
-                if (forceToAdd[1] < -grav)
+                forceToAddThread[1] = forceToAddThread[1] + (-grav * threadDelta);
+                if (forceToAddThread[1] < -grav)
                 {
-                    forceToAdd[1] = -grav;
+                    forceToAddThread[1] = -grav;
                 }
 
             }
             else
             {
-                forceToAdd[1] = 0.0f;
+                forceToAddThread[1] = 0.0f;
             }
 
             // If player can jump then add force to forceToAdd
             if (isGrounded && vertical > 0)
             {
-                forceToAdd[1] = jump;
+                forceToAddThread[1] = jump;
             }
             // Stop player if there is no input
             if (horizontal == 0)
             {
-                forceToAdd[0] = 0;
+                forceToAddThread[0] = 0;
             }
 
             Thread.Sleep(1);

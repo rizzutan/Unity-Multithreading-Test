@@ -382,8 +382,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 16
-  jump: 0.025
-  grav: 1
+  jump: 0.0125
+  grav: 0.05
   groundCheck: {fileID: 1921530616}
   rightCheck: {fileID: 1157837145}
   leftCheck: {fileID: 679407195}
