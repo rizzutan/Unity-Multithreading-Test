@@ -6,29 +6,30 @@ using UnityEngine;
 public class playerController : MonoBehaviour
 {
     // Local variables
-    Rigidbody2D rb;
-    bool isGrounded, isCollidingRight, isCollidingLeft = false;
-    float[] forceToAdd, forceToAddThread = new float[2] {0.0f, 0.0f};
-    float horizontal = 0.0f;
-    float vertical = 0.0f;
-    bool workAround = true;
-    float delta, threadDelta = 0.0f;
+    private Rigidbody2D rb;
+    private bool isGrounded, isCollidingRight, isCollidingLeft = false;
+    private float[] forceToAdd = new float[2] {0.0f, 0.0f};
+    private float horizontal, vertical = 0.0f;
+    private bool workAround = true;
+    private float delta, threadDelta = 0.0f;
+    private int fixedUpdate;
 
     // Local variables that are editable in inspect menu
-    [SerializeField] float speed = 16.0f;
-    [SerializeField] float jump = 0.0125f;
-    [SerializeField] float grav = 0.05f;
+    [SerializeField] private float speed = 16.0f;
+    [SerializeField] private float jump = 0.0125f;
+    [SerializeField] private float grav = 0.05f;
 
-    [SerializeField] Transform groundCheck;
-    [SerializeField] Transform rightCheck;
-    [SerializeField] Transform leftCheck;
-    [SerializeField] float dist = 0.055f;
-    [SerializeField] LayerMask groundMask;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private Transform rightCheck;
+    [SerializeField] private Transform leftCheck;
+    [SerializeField] private float dist = 0.055f;
+    [SerializeField] private LayerMask groundMask;
 
 
     // Awake is called on the first frame
     void Awake()
     {
+        fixedUpdate = (int)((Time.fixedDeltaTime * 1000) + 1);
         Thread thread = new Thread(physics);
         thread.Start();
     }
@@ -50,11 +51,10 @@ public class playerController : MonoBehaviour
     {
         // Apply forces to player
         delta = Time.deltaTime;
-        lock (forceToAddThread)
+        lock (forceToAdd)
         {
-            forceToAdd = forceToAddThread;
+            transform.position = new Vector3(transform.position.x + forceToAdd[0], transform.position.y + forceToAdd[1], 0);
         }
-        transform.position = new Vector3(transform.position.x + forceToAdd[0], transform.position.y + forceToAdd[1], 0);
     }
 
     void physics()
@@ -63,39 +63,39 @@ public class playerController : MonoBehaviour
         {
             threadDelta = delta;
             // Create force to allow for player movement
-            forceToAddThread[0] = horizontal * speed * threadDelta;
+            forceToAdd[0] = horizontal * speed * threadDelta;
 
-            if ((isCollidingRight && forceToAddThread[0] > 0) || (isCollidingLeft && forceToAddThread[0] < 0))
+            if ((isCollidingRight && forceToAdd[0] > 0) || (isCollidingLeft && forceToAdd[0] < 0))
             {
-                forceToAddThread[0] = 0;
+                forceToAdd[0] = 0;
             }
 
             if (!isGrounded)
             {
-                forceToAddThread[1] = forceToAddThread[1] + (-grav * threadDelta);
-                if (forceToAddThread[1] < -grav)
+                forceToAdd[1] = forceToAdd[1] + (-grav * threadDelta);
+                if (forceToAdd[1] < -grav)
                 {
-                    forceToAddThread[1] = -grav;
+                    forceToAdd[1] = -grav;
                 }
 
             }
             else
             {
-                forceToAddThread[1] = 0.0f;
+                forceToAdd[1] = 0.0f;
             }
 
             // If player can jump then add force to forceToAdd
             if (isGrounded && vertical > 0)
             {
-                forceToAddThread[1] = jump;
+                forceToAdd[1] = jump;
             }
             // Stop player if there is no input
             if (horizontal == 0)
             {
-                forceToAddThread[0] = 0;
+                forceToAdd[0] = 0;
             }
 
-            Thread.Sleep(1);
+            Thread.Sleep(fixedUpdate);
         }
     }
 
